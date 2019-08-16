@@ -11,7 +11,7 @@ async def on_config_update(app, key):
         con = await aioredis.create_redis(('localhost', 6379))
         val: str = await con.get(key)
         if val:
-            app['c1_config'][key] = val
+            app['config'][key] = val
     except asyncio.CancelledError:
         print('cancelled')
     except Exception as e:
@@ -43,12 +43,12 @@ async def cleanup_background_tasks(app):
 
 
 async def get_config(request):
-    return web.Response(text=ujson.dumps(request.app['c1_config']))
+    return web.Response(text=ujson.dumps(request.app['config']))
 
 
 async def app():
     app = web.Application()
-    app['c1_config'] = {'api_security': {'active': True}}
+    app['config'] = {}
     app.router.add_route("GET", "/config", get_config)
     app.on_startup.append(start_background_tasks)
     app.on_cleanup.append(cleanup_background_tasks)
